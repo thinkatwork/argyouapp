@@ -1,0 +1,1 @@
+// Placeholder file for frontend/pages/api/auth.js

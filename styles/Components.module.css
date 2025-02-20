@@ -1,0 +1,485 @@
+.container {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.button {
+  background: #0070f3;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.button:hover {
+  background: #0051b3;
+}
+
+.heading {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.card {
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  background: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.subheading {
+  color: #666;
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+}
+
+.sliderContainer {
+  margin: 1rem 0;
+  padding: 1rem;
+  background: #f5f5f5;
+  border-radius: 8px;
+}
+
+.sliderHeader {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+
+.slider {
+  width: 100%;
+  height: 8px;
+  -webkit-appearance: none;
+  background: linear-gradient(to right, var(--slider-color) 0%, var(--slider-color) 100%);
+  border-radius: 4px;
+  outline: none;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  background: var(--slider-color);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+
+.chatBox {
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-top: 2rem;
+}
+
+.messages {
+  min-height: 300px;
+  max-height: 500px;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.inputForm {
+  display: flex;
+  gap: 1rem;
+}
+
+.input {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 0.25rem;
+  font-size: 1rem;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #0070f3;
+}
+
+.loading {
+  color: #666;
+  font-style: italic;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+.message {
+  margin: 1rem 0;
+  max-width: 80%;
+  clear: both;
+}
+
+.user {
+  float: right;
+}
+
+.ai {
+  float: left;
+}
+
+.messageText {
+  padding: 1rem;
+  border-radius: 1rem;
+  position: relative;
+  margin-bottom: 0.5rem;
+  word-wrap: break-word;
+}
+
+/* User message bubble */
+.user .messageText {
+  background: #0070f3;
+  color: white;
+  margin-left: 2rem;
+  border-bottom-right-radius: 0.25rem;
+}
+
+/* AI message bubble */
+.ai .messageText {
+  background: #f0f0f0;
+  color: #333;
+  margin-right: 2rem;
+  border-bottom-left-radius: 0.25rem;
+}
+
+/* Add speech bubble tails */
+.user .messageText:after {
+  content: '';
+  position: absolute;
+  right: -0.5rem;
+  bottom: 0;
+  width: 0.5rem;
+  height: 1rem;
+  border-left: 0.5rem solid #0070f3;
+  border-bottom-right-radius: 1rem 0.5rem;
+}
+
+.ai .messageText:after {
+  content: '';
+  position: absolute;
+  left: -0.5rem;
+  bottom: 0;
+  width: 0.5rem;
+  height: 1rem;
+  border-right: 0.5rem solid #f0f0f0;
+  border-bottom-left-radius: 1rem 0.5rem;
+}
+
+/* Analysis section styling */
+.aiAnalysis {
+  clear: both;
+  margin-top: 1rem;
+  background: white;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.analysisContent {
+  padding: 1rem;
+  background: white;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.analysisSection {
+  padding: 1rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.analysisSection:last-child {
+  border-bottom: none;
+}
+
+.analysisSection h4 {
+  margin: 0 0 0.75rem 0;
+  color: #444;
+  font-size: 1rem;
+}
+
+.collapsibleSection {
+  margin-top: 0.5rem;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: 4px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.collapsibleSection:hover {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  font-weight: 500;
+  color: #444;
+}
+
+.toggleIcon {
+  font-size: 1.2rem;
+  color: #666;
+  transition: transform 0.2s ease;
+}
+
+.collapsibleSection.open .toggleIcon {
+  transform: rotate(180deg);
+}
+
+.message.error {
+  background-color: #ffebee;
+  color: #c62828;
+  border: 1px solid #ffcdd2;
+}
+
+.message.user {
+  background-color: #0070f3;
+  color: white;
+  margin-left: auto;
+  border-radius: 1rem 1rem 0 1rem;
+}
+
+.message.ai {
+  background-color: #f0f0f0;
+  color: #333;
+  margin-right: auto;
+  border-radius: 1rem 1rem 1rem 0;
+  transition: max-height 0.3s ease;
+}
+
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.contentWrapper {
+  display: flex;
+  flex: 1;
+  height: calc(100vh - 64px);
+  overflow: hidden;
+}
+
+.sidebar {
+  width: 250px;
+  border-right: 1px solid #eee;
+  background: white;
+  overflow-y: auto;
+  height: 100%;
+}
+
+.main {
+  flex: 1;
+  padding: 2rem;
+  background: #f9f9f9;
+  overflow-y: auto;
+  height: 100%;
+}
+
+.intensityIndicator {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--intensity-color);
+  margin-bottom: 0.5rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background: rgba(var(--intensity-color), 0.1);
+  display: inline-block;
+}
+
+.message.ai .intensityIndicator {
+  background: white;
+}
+
+.message.user .intensityIndicator {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #eaeaea;
+}
+
+.logoutButton {
+  padding: 0.5rem 1rem;
+  background: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.logoutButton:hover {
+  background: #d32f2f;
+}
+
+.ratingButtons {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.ratingButtons span {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.ratingButtons button {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ratingButtons button:hover {
+  background: #f5f5f5;
+  transform: scale(1.05);
+}
+
+.ratings {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.ratingItem {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.25rem;
+}
+
+.argument {
+  margin: 0.5rem 0;
+}
+
+.feedback {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.feedback h4 {
+  margin: 0 0 0.25rem 0;
+  color: #1976d2;
+}
+
+.feedback p {
+  margin: 0;
+  color: #555;
+}
+
+.ratings, .feedback {
+  padding: 1rem;
+  background: white;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.ratingItem {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  color: #666;
+}
+
+.ratingItem:last-child {
+  margin-bottom: 0;
+}
+
+.newConversation {
+  padding: 2rem;
+  text-align: center;
+  background: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.setupForm {
+  max-width: 500px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  text-align: left;
+}
+
+.inputGroup label {
+  font-weight: 500;
+  color: #666;
+}
+
+.select {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 0.25rem;
+  font-size: 1rem;
+  background: white;
+}
+
+.conversationHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background: #f8f9fa;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+.format {
+  padding: 0.25rem 0.5rem;
+  background: #e3f2fd;
+  color: #1976d2;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.rateLimitWarning {
+  background: #fff3cd;
+  color: #856404;
+  padding: 0.75rem;
+  margin: 1rem 0;
+  border-radius: 4px;
+  text-align: center;
+} 
