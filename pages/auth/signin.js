@@ -13,18 +13,22 @@ export default function SignIn() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    
+    try {
+      const result = await signIn('credentials', {
+        email: credentials.email,
+        password: credentials.password,
+        redirect: false,
+      });
 
-    const result = await signIn('credentials', {
-      email: credentials.email,
-      password: credentials.password,
-      redirect: false
-    });
-
-    if (result.error) {
-      setError(result.error);
-    } else {
-      router.push('/');
+      if (result.error) {
+        setError(result.error);
+      } else {
+        router.push('/');
+      }
+    } catch (error) {
+      console.error('Signin error:', error);
+      setError('An error occurred during sign in');
     }
   };
 
