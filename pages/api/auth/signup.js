@@ -8,7 +8,10 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Add connection error logging
+    console.log('Connecting to MongoDB...');
     await connectDB();
+    console.log('Connected to MongoDB successfully');
 
     const { name, email, password } = req.body;
 
@@ -34,16 +37,14 @@ export default async function handler(req, res) {
       password: hashedPassword
     });
 
-    // Remove password from response
-    const userWithoutPassword = {
+    return res.status(201).json({
       _id: user._id,
       name: user.name,
       email: user.email
-    };
+    });
 
-    return res.status(201).json(userWithoutPassword);
   } catch (error) {
     console.error('Signup error:', error);
-    return res.status(500).json({ error: 'Error creating account' });
+    return res.status(500).json({ error: error.message || 'Error creating account' });
   }
 } 
