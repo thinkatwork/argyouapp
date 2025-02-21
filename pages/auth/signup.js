@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import styles from '../../styles/Auth.module.css';
+import { useRouter } from 'next/router';
 
 export default function Signup() {
   const [formData, setFormData] = useState({
@@ -10,38 +11,35 @@ export default function Signup() {
     confirmPassword: ''
   });
   const [error, setError] = useState('');
+  const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
-
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
-      return;
-    }
-
+    
     try {
       const res = await fetch('/api/auth/signup', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+        }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || 'Something went wrong');
+        throw new Error(data.error || 'Failed to create account');
       }
 
-      // Sign in the user after successful signup
-      await signIn('credentials', {
-        email: formData.email,
-        password: formData.password,
-        callbackUrl: '/'
-      });
-
-    } catch (err) {
-      setError(err.message);
+      // Redirect to signin page on success
+      router.push('/auth/signin');
+    } catch (error) {
+      console.error('Signup error:', error);
+      setError(error.message);
     }
   };
 

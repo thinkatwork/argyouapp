@@ -12,6 +12,11 @@ export default async function handler(req, res) {
 
     const { name, email, password } = req.body;
 
+    // Validate input
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: 'Please fill in all fields' });
+    }
+
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -19,7 +24,8 @@ export default async function handler(req, res) {
     }
 
     // Hash password
-    const hashedPassword = await bcrypt.hash(password, 12);
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
 
     // Create user
     const user = await User.create({
@@ -28,9 +34,16 @@ export default async function handler(req, res) {
       password: hashedPassword
     });
 
-    res.status(201).json({ message: 'User created successfully' });
+    // Remove password from response
+    const userWithoutPassword = {
+      _id: user._id,
+      name: user.name,
+      email: user.email
+    };
+
+    return res.status(201).json(userWithoutPassword);
   } catch (error) {
     console.error('Signup error:', error);
-    res.status(500).json({ error: 'Error creating user' });
+    return res.status(500).json({ error: 'Error creating account' });
   }
 } 
