@@ -5,8 +5,49 @@ import { AI_PERSONALITY } from '../../config/aiConfig';
 import Conversation from '../../models/Conversation';
 import connectDB from '../../lib/mongodb';
 
-// Initialize Gemini with your API key
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_KEY);
+// Initialize Gemini with API key and version
+const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_KEY, {
+  apiVersion: 'v1beta'
+});
+
+// Test the connection
+const testConnection = async () => {
+  try {
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-2.0-flash"  // Using the model from documentation
+    });
+    
+    // Match the exact format from the documentation
+    const result = await model.generateContent({
+      contents: [{
+        parts: [{
+          text: "Say hello"
+        }]
+      }]
+    });
+    
+    console.log("Test response:", await result.response.text());
+    return true;
+  } catch (error) {
+    console.error("Connection test failed:", error);
+    return false;
+  }
+};
+
+// Call this when initializing
+testConnection().then(success => {
+  console.log("API connection test:", success ? "SUCCESS" : "FAILED");
+});
+
+// Add this debug logging
+console.log('Using API Key:', process.env.GOOGLE_AI_KEY ? 'Key exists' : 'No key found');
+
+// Near the top of the file
+console.log('API Key check:', {
+  exists: !!process.env.GOOGLE_AI_KEY,
+  length: process.env.GOOGLE_AI_KEY?.length,
+  prefix: process.env.GOOGLE_AI_KEY?.substring(0, 6)
+});
 
 // At the top of the file, add API key validation
 if (!process.env.GOOGLE_AI_KEY) {
@@ -197,133 +238,117 @@ IMPORTANT RULES:
 
 ${AI_PERSONALITY.getPrompt(sanitizedMessage, degree, sanitizedHistory)}`;
 
+    // Log the request body
+    console.log('Chat request:', {
+      messageLength: req.body.message?.length,
+      degree: req.body.degree,
+      historyLength: req.body.history?.length,
+      format: req.body.format
+    });
+
     // Initialize model with error handling
     let model;
     try {
       model = genAI.getGenerativeModel({ 
-        model: "gemini-pro",
-        safetySettings: [
-          {
-            category: "HARM_CATEGORY_HARASSMENT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          },
-          {
-            category: "HARM_CATEGORY_HATE_SPEECH",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          },
-          {
-            category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          },
-          {
-            category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-            threshold: "BLOCK_MEDIUM_AND_ABOVE"
-          }
-        ]
+        model: "gemini-2.0-flash"  // Using the model from documentation
       });
+      console.log('Gemini model initialized');
     } catch (error) {
-      console.error('Error initializing Gemini model:', error);
-      return res.status(500).json({ 
-        error: 'Failed to initialize AI model',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
-      });
+      console.error('Error initializing Gemini:', error);
+      throw error;
     }
 
-    // Generate response with more detailed error logging
-    try {
-      const executeRequest = async () => {
-        try {
-          // Generate content with Gemini
-          const result = await model.generateContent({
-            contents: [{
-              role: 'user',
-              parts: [{
-                text: prompt
-              }]
+    // Update the content generation
+    const executeRequest = async () => {
+      try {
+        console.log('Generating content with prompt:', prompt);
+        
+        // Use the format shown in the Google example
+        const result = await model.generateContent({
+          contents: [{
+            parts: [{
+              text: prompt
             }]
-          });
-
-          if (!result?.response) {
-            throw new Error('Empty response from AI model');
-          }
-
-          // Get the response text
-          const responseText = result.response.text();
-          console.log('Raw Gemini response:', responseText);
-
-          let aiResponse;
-          try {
-            // Try to parse as JSON
-            aiResponse = JSON.parse(responseText);
-          } catch (parseError) {
-            console.error('Failed to parse Gemini response as JSON:', parseError);
-            console.log('Response that failed to parse:', responseText);
-
-            // If it's not JSON, create a response object with the raw text
-            aiResponse = {
-              response: responseText,
-              ratings: {
-                logicalStrength: 5,
-                evidenceUsage: 5,
-                persuasiveness: 5,
-                overallScore: 5
-              },
-              feedback: "Unable to analyze argument structure.",
-              intensity: degree
-            };
-          }
-
-          // Validate the response structure
-          if (!aiResponse.response || !aiResponse.ratings || !aiResponse.feedback) {
-            console.error('Invalid response structure:', aiResponse);
-            throw new Error('Invalid response structure from AI');
-          }
-
-          return aiResponse;
-        } catch (error) {
-          console.error('Gemini API error:', error);
-          throw new Error(`Failed to generate response: ${error.message}`);
+          }]
+        });
+        
+        if (!result?.response) {
+          throw new Error('No response from Gemini API');
         }
-      };
 
-      // Add the request to the queue
-      const aiResponse = await requestQueue.add(executeRequest);
+        const responseText = await result.response.text();
+        console.log('Raw Gemini response:', responseText);
 
-      // Save the messages to the conversation
-      if (conversation) {
-        conversation.messages.push(
-          { 
-            text: message, 
-            sender: 'user', 
-            timestamp: new Date() 
-          },
-          { 
-            text: aiResponse.response,
-            ratings: aiResponse.ratings,
-            feedback: aiResponse.feedback,
-            intensity: aiResponse.intensity,
-            sender: 'ai', 
-            timestamp: new Date() 
-          }
-        );
-        conversation.updatedAt = new Date();
-        await conversation.save();
+        let aiResponse;
+        try {
+          // Try to parse as JSON
+          aiResponse = JSON.parse(responseText);
+        } catch (parseError) {
+          console.error('Failed to parse Gemini response as JSON:', parseError);
+          console.log('Response that failed to parse:', responseText);
+
+          // If it's not JSON, create a response object with the raw text
+          aiResponse = {
+            response: responseText,
+            ratings: {
+              logicalStrength: 5,
+              evidenceUsage: 5,
+              persuasiveness: 5,
+              overallScore: 5
+            },
+            feedback: "Unable to analyze argument structure.",
+            intensity: degree
+          };
+        }
+
+        // Validate the response structure
+        if (!aiResponse.response || !aiResponse.ratings || !aiResponse.feedback) {
+          console.error('Invalid response structure:', aiResponse);
+          throw new Error('Invalid response structure from AI');
+        }
+
+        return aiResponse;
+      } catch (error) {
+        console.error('Gemini generation error:', {
+          name: error.name,
+          message: error.message,
+          status: error.status
+        });
+        throw error;
       }
+    };
 
-      return res.status(200).json({ 
-        response: aiResponse.response,
-        ratings: aiResponse.ratings,
-        feedback: aiResponse.feedback,
-        intensity: aiResponse.intensity,
-        conversationId: conversation._id 
-      });
-    } catch (error) {
-      console.error('Chat API error:', error);
-      return res.status(500).json({ 
-        error: 'Failed to generate response. Please try again.',
-        details: process.env.NODE_ENV === 'development' ? error.message : undefined
-      });
+    // Add the request to the queue
+    const aiResponse = await requestQueue.add(executeRequest);
+
+    // Save the messages to the conversation
+    if (conversation) {
+      conversation.messages.push(
+        { 
+          text: message, 
+          sender: 'user', 
+          timestamp: new Date() 
+        },
+        { 
+          text: aiResponse.response,
+          ratings: aiResponse.ratings,
+          feedback: aiResponse.feedback,
+          intensity: aiResponse.intensity,
+          sender: 'ai', 
+          timestamp: new Date() 
+        }
+      );
+      conversation.updatedAt = new Date();
+      await conversation.save();
     }
+
+    return res.status(200).json({ 
+      response: aiResponse.response,
+      ratings: aiResponse.ratings,
+      feedback: aiResponse.feedback,
+      intensity: aiResponse.intensity,
+      conversationId: conversation._id 
+    });
   } catch (error) {
     console.error('Unhandled error:', error);
     return res.status(500).json({ error: 'An unexpected error occurred' });

@@ -76,26 +76,39 @@ export default function Home() {
     }
   };
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (conversationId) => {
     try {
-      const res = await fetch(`/api/conversations/${id}`, {
-        method: 'DELETE'
+      console.log('Deleting conversation:', {
+        id: conversationId,
+        currentUser: session?.user?.email
+      });
+      
+      const response = await fetch(`/api/conversations/${conversationId}`, {
+        method: 'DELETE',
+        credentials: 'include'
       });
 
-      if (!res.ok) {
-        throw new Error('Failed to delete conversation');
+      const data = await response.json();
+      
+      if (!response.ok) {
+        console.error('Delete failed:', {
+          status: response.status,
+          data
+        });
+        throw new Error(data.error || 'Failed to delete conversation');
       }
 
-      // Remove from state
-      setConversations(prev => prev.filter(conv => conv._id !== id));
-      
-      // If the deleted conversation was selected, clear it
-      if (currentConversation?._id === id) {
+      // Update local state after successful deletion
+      setConversations(prev => 
+        prev.filter(conv => conv._id !== conversationId)
+      );
+
+      if (currentConversation?._id === conversationId) {
         setCurrentConversation(null);
       }
-    } catch (err) {
-      console.error('Error deleting conversation:', err);
-      setError(err.message);
+    } catch (error) {
+      console.error('Error deleting conversation:', error);
+      setError(error.message); // Show error to user
     }
   };
 
